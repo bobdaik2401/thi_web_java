@@ -1,0 +1,169 @@
+<%-- 
+    Document   : Timkiem
+    Created on : 15 thg 11, 2024, 07:57:59
+    Author     : Acer
+--%>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.sql.*" %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page import="Model.Xulytimkiem" %>
+<%@ page import="java.sql.Connection, java.sql.DriverManager, java.sql.SQLException" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Tìm Kiếm Sản Phẩm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: #fff;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Tìm Kiếm Sản Phẩm</h1>
+    <div class="subtitle">Nguyễn Văn Quyền - DHTI15A2ND - 21203100075</div>
+
+    <form action="Xulytimkiem" method="post">
+        <input type="text" name="maSP" placeholder="Nhập mã sản phẩm">
+        <button type="submit">Tìm kiếm</button>
+    </form>
+
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Mã</th>
+                <th>Tên</th>
+                <th>Số Lượng</th>
+                <th>Đơn Giá</th>
+                <th>Thành Tiền</th>
+            </tr>
+
+           <%
+                String maSP = request.getParameter("maSP");
+                Connection conn = null;
+                PreparedStatement ps = null;
+                ResultSet rs = null;
+
+                try {
+                    Class.forName("com.mysql.cj.jdbc.Driver");
+                    conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/qlsanpham", "root", "");
+
+                    String query;
+                    if (maSP == null || maSP.trim().isEmpty()) {
+                    query = "SELECT * FROM sanpham";
+                        ps = conn.prepareStatement(query);
+                    } else {
+                        query = "SELECT * FROM sanpham WHERE MaSP LIKE ?";
+                        ps = conn.prepareStatement(query);
+                        ps.setString(1, "%" + maSP + "%");
+                    }
+
+                    rs = ps.executeQuery();
+                    boolean found = false;
+
+                    while (rs.next()) {
+                        found = true;
+                        String ma = rs.getString("MaSP");
+                        String ten = rs.getString("TenSP");
+                        int soLuong = rs.getInt("SoLuong");
+                        double donGia = rs.getDouble("DonGia");
+                        double thanhTien = soLuong * donGia;
+            %>
+            <tr>
+                <td><%= ma %></td>
+                <td><%= ten %></td>
+                <td><%= soLuong %></td>
+                <td><%= donGia %></td>
+                <td><%= thanhTien %></td>
+            </tr>
+            <%
+                    }
+
+                    if (!found) {
+            %>
+            <tr>
+                <td colspan="5">Không tìm thấy sản phẩm nào</td>
+            </tr>
+            <%
+                    }
+                } catch (ClassNotFoundException e) {
+                    out.println("<tr><td colspan='5'>Lỗi: Không tìm thấy driver JDBC.</td></tr>");
+                    e.printStackTrace();
+                } catch (SQLException e) {
+                    out.println("<tr><td colspan='5'>Lỗi kết nối cơ sở dữ liệu.</td></tr>");
+                    e.printStackTrace();
+                } finally {
+                    if (rs != null) try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+                    if (ps != null) try { ps.close(); } catch (SQLException e) { e.printStackTrace(); }
+                    if (conn != null) try { conn.close(); } catch (SQLException e) { e.printStackTrace(); }
+                }
+            %>
+        </table>
+    </div>
+</div>
+</body>
+</html>

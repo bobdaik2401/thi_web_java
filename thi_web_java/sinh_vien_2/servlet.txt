@@ -1,0 +1,89 @@
+package controllers;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet("/XLThemSV")
+public class XLThemSV extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String MSSV = request.getParameter("MSSV");
+        String Hoten = request.getParameter("Hoten");
+        String Lop = request.getParameter("Lop");
+        float DiemTB = Float.parseFloat(request.getParameter("DiemTB"));
+
+        String jdbcURL = "jdbc:mysql://localhost:3306/QLSinhVien";
+        String dbUser = "root";
+        String dbPassword = "password";
+        String message = null;
+
+        try (Connection connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword)) {
+            // Kiểm tra trùng MSSV
+            String checkSQL = "SELECT COUNT(*) FROM Student WHERE MSSV = ?";
+            PreparedStatement checkStmt = connection.prepareStatement(checkSQL);
+            checkStmt.setString(1, MSSV);
+            ResultSet checkResult = checkStmt.executeQuery();
+            checkResult.next();
+
+            if (checkResult.getInt(1) > 0) {
+                message = "Thêm không thành công do trùng Mã số sinh viên: " + MSSV;
+            } else {
+                // Thêm sinh viên
+                String insertSQL = "INSERT INTO Student (MSSV, Hoten, Lop, DiemTB) VALUES (?, ?, ?, ?)";
+                PreparedStatement insertStmt = connection.prepareStatement(insertSQL);
+                insertStmt.setString(1, MSSV);
+                insertStmt.setString(2, Hoten);
+                insertStmt.setString(3, Lop);
+                insertStmt.setFloat(4, DiemTB);
+
+                int rowsInserted = insertStmt.executeUpdate();
+                if (rowsInserted > 0) {
+                    message = "Thêm thành công Mã số sinh viên: " + MSSV;
+                }
+            }
+
+            // Lấy danh sách sinh viên
+            List<Map<String, String>> dsSinhVien = new ArrayList<>();
+            String selectSQL = "SELECT * FROM Student";
+            PreparedStatement selectStmt = connection.prepareStatement(selectSQL);
+            ResultSet resultSet = selectStmt.executeQuery();
+
+            while (resultSet.next()) {
+                Map<String, String> sinhVien = new HashMap<>();
+                sinhVien.put("MSSV", resultSet.getString("MSSV"));
+                sinhVien.put("Hoten", resultSet.getString("Hoten"));
+                sinhVien.put("Lop", resultSet.getString("Lop"));
+                sinhVien.put("DiemTB", String.valueOf(resultSet.getFloat("DiemTB")));
+
+                float diem = resultSet.getFloat("DiemTB");
+                if (diem >= 8.5) {
+                    sinhVien.put("XepLoai", "Giỏi");
+                } else if (diem >= 6.5) {
+                    sinhVien.put("XepLoai", "Khá");
+                } else if (diem >= 5.0) {
+                    sinhVien.put("XepLoai", "Trung bình");
+                } else {
+                    sinhVien.put("XepLoai", "Yếu");
+                }
+
+                dsSinhVien.add(sinhVien);
+            }
+
+            // Truyền dữ liệu về JSP
+            request.setAttribute("dsSinhVien", dsSinhVien);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            message = "Lỗi kết nối cơ sở dữ liệu!";
+        }
+
+        request.setAttribute("message", message);
+        request.getRequestDispatcher("ThemSV.jsp").forward(request, response);
+    }
+}

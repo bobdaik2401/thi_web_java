@@ -1,0 +1,88 @@
+package Model;
+
+
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet(name="HTServlet_nguyenvanquyen", urlPatterns={"/HTServlet_nguyenvanquyen"})
+public class HTServlet_nguyenvanquyen extends HttpServlet {
+
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        response.setContentType("text/html; charset=UTF-8");
+        request.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+
+        String madt = request.getParameter("Ma");
+        String tendt = request.getParameter("Ten");
+        String sldt = request.getParameter("Soluong");
+        String dongiadt = request.getParameter("Dongia");
+
+        try {
+            Connection kn = Ketnoi.KNCSDL();
+            String sql2 = "SELECT * FROM dienthoai";
+            PreparedStatement psSelect = kn.prepareStatement(sql2);
+            ResultSet rs = psSelect.executeQuery();
+
+            // Output HTML table with CSS styling
+            out.println("<html><head><style>");
+            out.println("table { width: 100%; border-collapse: collapse; }");
+            out.println("table, th, td { border: 1px solid black; padding: 8px; text-align: center; }");
+            out.println("th { background-color: #4CAF50; color: white; }");
+            out.println("tr:nth-child(even) { background-color: #f2f2f2; }");
+            out.println("</style></head><body>");
+
+            out.println("<h2>Danh Sách Điện Thoại</h2>");
+            out.println("<table>");
+            out.println("<tr><th>Mã Điện Thoại</th><th>Tên Điện Thoại</th><th>Số Lượng</th><th>Đơn Giá</th></tr>");
+
+            // Loop through the result set and output each row
+            while (rs.next()) {
+                String ma = rs.getString("Ma");
+                String ten = rs.getString("Ten");
+                int soLuong = rs.getInt("Soluong");
+                int donGia = rs.getInt("Dongia");
+
+                out.println("<tr>");
+                out.println("<td>" + ma + "</td>");
+                out.println("<td>" + ten + "</td>");
+                out.println("<td>" + soLuong + "</td>");
+                out.println("<td>" + donGia + "</td>");
+                out.println("</tr>");
+            }
+
+            // Close the HTML tags
+            out.println("</table>");
+            out.println("</body></html>");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            out.close();
+        }
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }
+}

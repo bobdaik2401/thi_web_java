@@ -1,0 +1,10 @@
+CREATE DATABASE QLThiSinh;
+
+USE QLThiSinh;
+
+CREATE TABLE ThiSinh (
+    SBD VARCHAR(10) PRIMARY KEY,
+    HoTen NVARCHAR(100),
+    DiemToan FLOAT,
+    DiemVan FLOAT
+);

@@ -1,0 +1,66 @@
+package controllers;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet("/XLTimKiemCN")
+public class XLTimKiemCN extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String hoTen = request.getParameter("hoTen");
+        List<Map<String, String>> dsCongNhan = new ArrayList<>();
+        String message = null;
+
+        String jdbcURL = "jdbc:mysql://localhost:3306/QLCongNhan";
+        String dbUser = "root";
+        String dbPassword = "password";
+
+        try (Connection connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword)) {
+            String sql = "SELECT * FROM CongNhan WHERE HoTen LIKE ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, "%" + hoTen + "%");
+
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                Map<String, String> congNhan = new HashMap<>();
+                congNhan.put("MaCN", resultSet.getString("MaCN"));
+                congNhan.put("HoTen", resultSet.getString("HoTen"));
+                congNhan.put("GioiTinh", resultSet.getString("GioiTinh"));
+                int soGioLamVuot = resultSet.getInt("SoGioLamVuot");
+                congNhan.put("SoGioLamVuot", String.valueOf(soGioLamVuot));
+
+                // Tính tiền thưởng
+                int tienThuong = 0;
+                if (soGioLamVuot >= 40) {
+                    tienThuong = 500000;
+                } else if (soGioLamVuot >= 30) {
+                    tienThuong = 300000;
+                } else if (soGioLamVuot >= 20) {
+                    tienThuong = 200000;
+                }
+                congNhan.put("TienThuong", String.valueOf(tienThuong));
+
+                dsCongNhan.add(congNhan);
+            }
+
+            if (dsCongNhan.isEmpty()) {
+                message = "Không tìm thấy công nhân có tên: " + hoTen;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            message = "Lỗi kết nối cơ sở dữ liệu!";
+        }
+
+        // Truyền dữ liệu về lại trang JSP
+        request.setAttribute("dsCongNhan", dsCongNhan);
+        request.setAttribute("message", message);
+        request.getRequestDispatcher("TimKiemCN.jsp").forward(request, response);
+    }
+}

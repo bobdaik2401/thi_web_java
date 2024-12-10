@@ -1,0 +1,69 @@
+package controllers;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet("/XLXoaSach")
+public class XLXoaSach extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String MaSach = request.getParameter("MaSach");
+
+        String jdbcURL = "jdbc:mysql://localhost:3306/QLSach";
+        String dbUser = "root";
+        String dbPassword = "password";
+        String message = null;
+
+        try (Connection connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword)) {
+            // Kiểm tra xem mã sách có tồn tại
+            String checkSQL = "SELECT COUNT(*) FROM Sach WHERE MaSach = ?";
+            PreparedStatement checkStmt = connection.prepareStatement(checkSQL);
+            checkStmt.setString(1, MaSach);
+            ResultSet checkResult = checkStmt.executeQuery();
+            checkResult.next();
+
+            if (checkResult.getInt(1) == 0) {
+                message = "Không tồn tại sách có mã " + MaSach + " cần xoá";
+            } else {
+                // Xoá sách
+                String deleteSQL = "DELETE FROM Sach WHERE MaSach = ?";
+                PreparedStatement deleteStmt = connection.prepareStatement(deleteSQL);
+                deleteStmt.setString(1, MaSach);
+                deleteStmt.executeUpdate();
+                message = "Xoá thành công mã sách: " + MaSach;
+            }
+
+            // Lấy danh sách sách
+            List<Map<String, String>> dsSach = new ArrayList<>();
+            String selectSQL = "SELECT * FROM Sach";
+            PreparedStatement selectStmt = connection.prepareStatement(selectSQL);
+            ResultSet resultSet = selectStmt.executeQuery();
+
+            while (resultSet.next()) {
+                Map<String, String> sach = new HashMap<>();
+                sach.put("MaSach", resultSet.getString("MaSach"));
+                sach.put("TenSach", resultSet.getString("TenSach"));
+                sach.put("SoLuong", String.valueOf(resultSet.getInt("SoLuong")));
+                sach.put("DonGia", String.valueOf(resultSet.getDouble("DonGia")));
+
+                dsSach.add(sach);
+            }
+
+            // Truyền dữ liệu về JSP
+            request.setAttribute("dsSach", dsSach);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            message = "Lỗi kết nối cơ sở dữ liệu!";
+        }
+
+        request.setAttribute("message", message);
+        request.getRequestDispatcher("XoaSach.jsp").forward(request, response);
+    }
+}

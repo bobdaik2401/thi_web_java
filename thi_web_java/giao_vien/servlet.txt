@@ -1,0 +1,88 @@
+package controllers;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet("/XLThemGV")
+public class XLThemGV extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String MaGV = request.getParameter("MaGV");
+        String Hoten = request.getParameter("Hoten");
+        int NamSinh = Integer.parseInt(request.getParameter("NamSinh"));
+        float HeSoLuong = Float.parseFloat(request.getParameter("HeSoLuong"));
+
+        String jdbcURL = "jdbc:mysql://localhost:3306/QLGiaoVien";
+        String dbUser = "root";
+        String dbPassword = "password";
+        String message = null;
+
+        try (Connection connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword)) {
+            // Kiểm tra trùng MaGV
+            String checkSQL = "SELECT COUNT(*) FROM GiaoVien WHERE MaGV = ?";
+            PreparedStatement checkStmt = connection.prepareStatement(checkSQL);
+            checkStmt.setString(1, MaGV);
+            ResultSet checkResult = checkStmt.executeQuery();
+            checkResult.next();
+
+            if (checkResult.getInt(1) > 0) {
+                message = "Thêm không thành công do trùng Mã số giáo viên: " + MaGV;
+            } else {
+                // Thêm giáo viên
+                String insertSQL = "INSERT INTO GiaoVien (MaGV, Hoten, NamSinh, HeSoLuong) VALUES (?, ?, ?, ?)";
+                PreparedStatement insertStmt = connection.prepareStatement(insertSQL);
+                insertStmt.setString(1, MaGV);
+                insertStmt.setString(2, Hoten);
+                insertStmt.setInt(3, NamSinh);
+                insertStmt.setFloat(4, HeSoLuong);
+
+                int rowsInserted = insertStmt.executeUpdate();
+                if (rowsInserted > 0) {
+                    message = "Thêm thành công Mã số giáo viên: " + MaGV;
+                }
+            }
+
+            // Lấy danh sách giáo viên
+            List<Map<String, String>> dsGiaoVien = new ArrayList<>();
+            String selectSQL = "SELECT * FROM GiaoVien";
+            PreparedStatement selectStmt = connection.prepareStatement(selectSQL);
+            ResultSet resultSet = selectStmt.executeQuery();
+
+            while (resultSet.next()) {
+                Map<String, String> giaoVien = new HashMap<>();
+                giaoVien.put("MaGV", resultSet.getString("MaGV"));
+                giaoVien.put("Hoten", resultSet.getString("Hoten"));
+                giaoVien.put("NamSinh", String.valueOf(resultSet.getInt("NamSinh")));
+                giaoVien.put("HeSoLuong", String.valueOf(resultSet.getFloat("HeSoLuong")));
+
+                // Tính số tiền trợ cấp
+                int age = 2024 - resultSet.getInt("NamSinh");
+                String troCap = "Không trợ cấp";
+                if (age >= 50) {
+                    troCap = "2 triệu VNĐ";
+                } else if (age >= 40) {
+                    troCap = "1 triệu VNĐ";
+                }
+                giaoVien.put("TroCap", troCap);
+
+                dsGiaoVien.add(giaoVien);
+            }
+
+            // Truyền dữ liệu về JSP
+            request.setAttribute("dsGiaoVien", dsGiaoVien);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            message = "Lỗi kết nối cơ sở dữ liệu!";
+        }
+
+        request.setAttribute("message", message);
+        request.getRequestDispatcher("ThemGV.jsp").forward(request, response);
+    }
+}

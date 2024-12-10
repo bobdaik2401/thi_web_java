@@ -1,0 +1,69 @@
+package controllers;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet("/XLXoaCB")
+public class XLXoaCB extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String MaCB = request.getParameter("MaCB");
+
+        String jdbcURL = "jdbc:mysql://localhost:3306/QLCanBo";
+        String dbUser = "root";
+        String dbPassword = "password";
+        String message = null;
+
+        try (Connection connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword)) {
+            // Kiểm tra xem mã cán bộ có tồn tại
+            String checkSQL = "SELECT COUNT(*) FROM CanBo WHERE MaCB = ?";
+            PreparedStatement checkStmt = connection.prepareStatement(checkSQL);
+            checkStmt.setString(1, MaCB);
+            ResultSet checkResult = checkStmt.executeQuery();
+            checkResult.next();
+
+            if (checkResult.getInt(1) == 0) {
+                message = "Không tồn tại cán bộ có mã " + MaCB + " cần xoá";
+            } else {
+                // Xoá cán bộ
+                String deleteSQL = "DELETE FROM CanBo WHERE MaCB = ?";
+                PreparedStatement deleteStmt = connection.prepareStatement(deleteSQL);
+                deleteStmt.setString(1, MaCB);
+                deleteStmt.executeUpdate();
+                message = "Xoá thành công cán bộ mã: " + MaCB;
+            }
+
+            // Lấy danh sách cán bộ
+            List<Map<String, String>> dsCanBo = new ArrayList<>();
+            String selectSQL = "SELECT * FROM CanBo";
+            PreparedStatement selectStmt = connection.prepareStatement(selectSQL);
+            ResultSet resultSet = selectStmt.executeQuery();
+
+            while (resultSet.next()) {
+                Map<String, String> canBo = new HashMap<>();
+                canBo.put("MaCB", resultSet.getString("MaCB"));
+                canBo.put("TenCB", resultSet.getString("TenCB"));
+                canBo.put("NamVN", String.valueOf(resultSet.getInt("NamVN")));
+                canBo.put("HeSL", String.valueOf(resultSet.getDouble("HeSL")));
+
+                dsCanBo.add(canBo);
+            }
+
+            // Truyền dữ liệu về JSP
+            request.setAttribute("dsCanBo", dsCanBo);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            message = "Lỗi kết nối cơ sở dữ liệu!";
+        }
+
+        request.setAttribute("message", message);
+        request.getRequestDispatcher("XoaCB.jsp").forward(request, response);
+    }
+}

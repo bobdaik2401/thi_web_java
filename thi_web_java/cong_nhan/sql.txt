@@ -1,0 +1,62 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Nov 29, 2024 at 02:50 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.1.25
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `qlcongnhan`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `congnhan`
+--
+
+CREATE TABLE `congnhan` (
+  `MaCN` varchar(10) NOT NULL,
+  `HoTen` varchar(100) DEFAULT NULL,
+  `GioiTinh` varchar(10) DEFAULT NULL,
+  `SoGioLamVuot` int(11) DEFAULT NULL,
+  `TienThuong` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `congnhan`
+--
+
+INSERT INTO `congnhan` (`MaCN`, `HoTen`, `GioiTinh`, `SoGioLamVuot`, `TienThuong`) VALUES
+('CN001', 'Đinh Vạn Dark', 'Nam', 45, 500000),
+('CN002', 'Nguyễn Đình Mèo Fat', 'Nu', 38, 300000),
+('CN003', 'Lê Văn Zin', 'Nam', 20, 200000),
+('CN004', 'Vũ Đăng Tứn', 'Nam', 50, 500000),
+('CN005', 'Cao Minh Dark', 'Nu', 30, 300000);
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `congnhan`
+--
+ALTER TABLE `congnhan`
+  ADD PRIMARY KEY (`MaCN`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

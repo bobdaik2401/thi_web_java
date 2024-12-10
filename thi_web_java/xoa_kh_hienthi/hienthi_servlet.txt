@@ -1,0 +1,106 @@
+package Model;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet(name="HTServlet_Hoangnanghai", urlPatterns={"/HTServlet_Hoangnanghai"})
+public class HTServlet_Hoangnanghai extends HttpServlet {
+
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+
+        String maKH = request.getParameter("maKH");
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/qlkhachhang", "root", "");
+
+            out.println("<html><head><title>Xóa Khách Hàng</title>");
+            out.println("<style>");
+            out.println("body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; color: #333; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }");
+            out.println(".container { max-width: 700px; width: 100%; background: #fff; padding: 30px; box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); border-radius: 10px; text-align: center; }");
+            out.println("h2 { color: #333; font-size: 24px; margin-bottom: 20px; }");
+            out.println(".form-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }");
+            out.println("label { font-weight: bold; font-size: 16px; margin-bottom: 5px; color: #555; }");
+            out.println("input[type='text'] { padding: 10px; width: 80%; max-width: 300px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #ccc; font-size: 14px; }");
+            out.println("input[type='submit'] { padding: 10px 20px; background-color: #ff4d4d; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; transition: background-color 0.3s ease; }");
+            out.println("input[type='submit']:hover { background-color: #e63939; }");
+            out.println(".message { font-size: 16px; margin-top: 10px; }");
+            out.println(".message.success { color: green; }");
+            out.println(".message.error { color: red; }");
+            out.println("table { width: 100%; border-collapse: collapse; margin-top: 20px; }");
+            out.println("table, th, td { border: 1px solid #ddd; }");
+            out.println("th, td { padding: 12px; text-align: center; }");
+            out.println("th { background-color: #007bff; color: white; font-weight: bold; }");
+            out.println("tr:nth-child(even) { background-color: #f2f2f2; }");
+            out.println("</style></head><body>");
+            out.println("<div class='container'>");
+
+            boolean isDeleted = false;
+            if (maKH != null && !maKH.trim().isEmpty()) {
+                String checkSQL = "SELECT COUNT(*) FROM KhachHang WHERE maKH = ?";
+                PreparedStatement checkStmt = conn.prepareStatement(checkSQL);
+                checkStmt.setInt(1, Integer.parseInt(maKH));
+                ResultSet checkResult = checkStmt.executeQuery();
+
+                if (checkResult.next() && checkResult.getInt(1) > 0) {
+                    String deleteSQL = "DELETE FROM KhachHang WHERE maKH = ?";
+                    PreparedStatement deleteStmt = conn.prepareStatement(deleteSQL);
+                    deleteStmt.setInt(1, Integer.parseInt(maKH));
+                    deleteStmt.executeUpdate();
+                    out.println("<p class='message success'>Xóa thành công mã KH: " + maKH + "</p>");
+                    isDeleted = true;
+                } else {
+                    out.println("<p class='message error'>Không tìm thấy mã KH cần xóa: " + maKH + "</p>");
+                }
+            }
+
+            if (isDeleted) {
+                // Display list of remaining customers only if deletion was successful
+                out.println("<h2>Danh sách Khách Hàng Còn Lại</h2>");
+                out.println("<table><tr><th>Mã KH</th><th>Tên KH</th><th>Email</th><th>Số Tài Khoản</th></tr>");
+
+                String selectSQL = "SELECT * FROM KhachHang";
+                PreparedStatement selectStmt = conn.prepareStatement(selectSQL);
+                ResultSet rs = selectStmt.executeQuery();
+
+                while (rs.next()) {
+                    out.println("<tr><td>" + rs.getInt("maKH") + "</td><td>" + rs.getString("tenKH") + "</td><td>" + rs.getString("email") + "</td><td>" + rs.getString("soTaiKhoan") + "</td></tr>");
+                }
+
+                out.println("</table>");
+            }
+
+            out.println("</div></body></html>");
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            out.println("<p style='color: red; text-align: center;'>Error: " + e.getMessage() + "</p>");
+        }
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    @Override
+    public String getServletInfo() {
+        return "Servlet for deleting customers and showing remaining list if deletion was successful";
+    }
+}

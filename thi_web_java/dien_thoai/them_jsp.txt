@@ -1,0 +1,166 @@
+<%@ page import="java.sql.*" %>
+<%@ page import="Model.Ketnoi" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Thêm Điện Thoại</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 8px 0 4px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 4px 0 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        table {
+            width: 80%;
+            max-width: 800px;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            color: #333;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h2>Thêm Thông Tin Điện Thoại</h2>
+    <%
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            conn = Ketnoi.KNCSDL();
+            if (request.getParameter("ma") != null && request.getParameter("ten") != null &&
+                request.getParameter("soluong") != null && request.getParameter("dongia") != null) {
+                String ma = request.getParameter("ma");
+                String ten = request.getParameter("ten");
+                int soluong = Integer.parseInt(request.getParameter("soluong"));
+                double dongia = Double.parseDouble(request.getParameter("dongia"));
+                String sqlInsert = "INSERT INTO DienThoai (Ma, Ten, Soluong, Dongia) VALUES (?, ?, ?, ?)";
+                pstmt = conn.prepareStatement(sqlInsert);
+                pstmt.setString(1, ma);
+                pstmt.setString(2, ten);
+                pstmt.setInt(3, soluong);
+                pstmt.setDouble(4, dongia);
+                pstmt.executeUpdate();
+                out.println("<p style='color:green;'>Thêm thành công!</p>");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            out.println("<p style='color:red;'>Lỗi: " + e.getMessage() + "</p>");
+        } finally {
+            if (pstmt != null) pstmt.close();
+            if (conn != null) conn.close();
+        }
+    %>
+    <form method="post" action="Them_nguyenvanquyen.jsp">
+        <label>Mã:</label>
+        <input type="text" name="ma" required>
+        <label>Tên:</label>
+        <input type="text" name="ten" required>
+        <label>Số lượng:</label>
+        <input type="number" name="soluong" required>
+        <label>Đơn giá:</label>
+        <input type="number" name="dongia" required>
+        <button type="submit">Thêm</button>
+    </form>
+    <h2>Danh Sách Điện Thoại</h2>
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Số thứ tự</th>
+                <th>Mã điện thoại</th>
+                <th>Tên điện thoại</th>
+                <th>Số lượng</th>
+                <th>Đơn giá</th>
+            </tr>
+            <%
+                conn = Ketnoi.KNCSDL();
+                Statement stmt = null;
+                ResultSet rs = null;
+                
+                try {
+                    conn = Ketnoi.KNCSDL();
+                    stmt = conn.createStatement();
+                    rs = stmt.executeQuery("SELECT * FROM DienThoai");
+
+                    int index = 1;
+                    while (rs.next()) {
+            %>
+            <tr>
+                <td><%= index++ %></td>
+                <td><%= rs.getString("Ma") %></td>
+                <td><%= rs.getString("Ten") %></td>
+                <td><%= rs.getInt("Soluong") %></td>
+                <td><%= rs.getDouble("Dongia") %> VND</td>
+            </tr>
+            <%
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    out.println("<p style='color:red;'>Error occurred: " + e.getMessage() + "</p>");
+                } finally {
+                    if (rs != null) rs.close();
+                    if (stmt != null) stmt.close();
+                    if (conn != null) conn.close();
+                }
+            %>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<%-- 
+    Document   : XoaTC
+    Created on : 22 thg 11, 2024, 11:35:21
+    Author     : Acer
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Xóa Tạp Chí</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h2, h3 {
+            color: #4CAF50;
+            text-align: center;
+        }
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        form input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        form button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        form button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        table th, table td {
+            text-align: left;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+        .message {
+            text-align: center;
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2>Xóa Tạp Chí</h2>
+    <form action="XLXoaTC" method="post">
+        <label for="maTC">Mã Tạp Chí:</label>
+        <input type="text" id="maTC" name="maTC" required>
+        <button type="submit">Xóa</button>
+    </form>
+    <hr>
+    <c:if test="${not empty message}">
+    <div class="message">
+        ${message}
+    </div>
+    </c:if>
+    <h3>Danh sách Tạp Chí</h3>
+    <table>
+        <tr>
+            <th>Mã Tạp Chí</th>
+            <th>Tên Tạp Chí</th>
+            <th>Nhà Xuất Bản</th>
+            <th>Năm Xuất Bản</th>
+            <th>Giá Bìa</th>
+            <th>Giá Bán</th>
+        </tr>
+        <%
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/qltapchi", "root", "");
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery("SELECT * FROM tapchi");
+
+                while (rs.next()) {
+                    String maTC = rs.getString("MaTC");
+                    String tenTC = rs.getString("TenTC");
+                    String nhaXB = rs.getString("NhaXB");
+                    int namXB = rs.getInt("NamXB");
+                    double giaBia = rs.getDouble("GiaBia");
+                    double giaBan = giaBia;
+                    if (namXB == 2023 || namXB == 2022) {
+                        giaBan = giaBia * 0.95; 
+                    } else if (namXB < 2022) {
+                        giaBan = giaBia * 0.9;
+                    }
+        %>
+        <tr>
+            <td><%= maTC %></td>
+            <td><%= tenTC %></td>
+            <td><%= nhaXB %></td>
+            <td><%= namXB %></td>
+            <td><%= giaBia %></td>
+            <td><%= giaBan %></td>
+        </tr>
+        <%
+                }
+                conn.close();
+            } catch (Exception e) {
+                out.println("Lỗi: " + e.getMessage());
+            }
+        %>
+    </table>
+</body>
+</html>

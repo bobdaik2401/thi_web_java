@@ -1,0 +1,80 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Xóa Doanh Nghiệp</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Xóa Doanh Nghiệp</h1>
+    <form action="XLXoaDN" method="post">
+        <label for="MaDN">Mã doanh nghiệp:</label>
+        <input type="text" id="MaDN" name="MaDN" required><br><br>
+        <button type="submit">Xoá</button>
+    </form>
+
+    <h2>Danh sách Doanh Nghiệp</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Mã doanh nghiệp</th>
+            <th>Tên doanh nghiệp</th>
+            <th>Số vốn đầu tư</th>
+            <th>Doanh thu</th>
+            <th>Tiền thuế</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%
+            List<Map<String, String>> dsDoanhNghiep = (List<Map<String, String>>) request.getAttribute("dsDoanhNghiep");
+            String message = (String) request.getAttribute("message");
+            if (message != null) {
+        %>
+            <tr>
+                <td colspan="5" style="color: red;"><%= message %></td>
+            </tr>
+        <%
+            }
+            if (dsDoanhNghiep != null) {
+                for (Map<String, String> doanhNghiep : dsDoanhNghiep) {
+                    double thuế = 0;
+                    double soVdt = Double.parseDouble(doanhNghiep.get("SoVDT"));
+                    double doanhThu = Double.parseDouble(doanhNghiep.get("DoanhThu"));
+
+                    if (soVdt > 500000000) {
+                        thuế = 0.10 * doanhThu; // 10% thuế nếu vốn đầu tư trên 500 triệu
+                    } else {
+                        thuế = 0.05 * doanhThu; // 5% thuế nếu vốn đầu tư dưới hoặc bằng 500 triệu
+                    }
+        %>
+            <tr>
+                <td><%= doanhNghiep.get("MaDN") %></td>
+                <td><%= doanhNghiep.get("TenDN") %></td>
+                <td><%= doanhNghiep.get("SoVDT") %></td>
+                <td><%= doanhNghiep.get("DoanhThu") %></td>
+                <td><%= String.format("%.0f", thuế) %> đ</td>
+            </tr>
+        <%
+                }
+            }
+        %>
+        </tbody>
+    </table>
+</body>
+</html>

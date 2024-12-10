@@ -1,0 +1,57 @@
+<%-- 
+    Document   : dntc
+    Created on : Oct 11, 2024, 9:00:37 AM
+    Author     : hoang
+--%>
+
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập Thành Công</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .success-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .success-box h2 {
+            color: #28a745;
+        }
+        .success-box p {
+            font-size: 18px;
+        }
+        .success-box button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="success-box">
+    <h2>Đăng Nhập Thành Công!</h2>
+    <p>Xin chào, <strong><%= request.getParameter("username") %></strong>!</p>
+    <p>Chào mừng bạn đã quay trở lại.</p>
+    <button onclick="window.location.href='nguyenvanquyen_Login.jsp';">Đăng xuất</button>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,20 @@
+CREATE DATABASE QLBanHang;
+
+USE QLBanHang;
+
+CREATE TABLE BanHang (
+    MaKH VARCHAR(10) NOT NULL,
+    MaSP VARCHAR(10) NOT NULL,
+    GiaSP DECIMAL(10, 2) NOT NULL,
+    SoLuong INT NOT NULL,
+    PRIMARY KEY (MaKH, MaSP)
+);
+
+-- Thêm dữ liệu mẫu
+INSERT INTO BanHang (MaKH, MaSP, GiaSP, SoLuong)
+VALUES
+('KH001', 'SP001', 200000, 5),
+('KH002', 'SP002', 150000, 3),
+('KH003', 'SP003', 250000, 2),
+('KH004', 'SP004', 180000, 6),
+('KH005', 'SP005', 220000, 4);

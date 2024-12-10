@@ -1,0 +1,50 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Tính Diện Tích</title>
+    </head>
+    <body>
+        <h1>Hoàng Năng Hải DHTI15A2ND 21203200003</h1>
+        <div>Tính diện tích hình chữ nhật</div>
+
+        <form action="hoangnanghai_dt.jsp" method="POST">
+            <label for="length">Gõ vào chiều dài:</label>
+            <input type="text" id="length" name="length" /><br/><br/>
+
+            <label for="width">Gõ vào chiều rộng:</label>
+            <input type="text" id="width" name="width" /><br/><br/>
+
+            <input type="submit" value="Tính toán" />
+        </form>
+
+        <%
+            String lengthStr = request.getParameter("length");
+            String widthStr = request.getParameter("width");
+
+            if (lengthStr != null && widthStr != null) {
+                if (lengthStr.isEmpty() || widthStr.isEmpty()) {
+                    out.println("<p style='color:red;'>Vui lòng nhập cả chiều dài và chiều rộng!</p>");
+                } else {
+                    try {
+                        
+                        double length = Double.parseDouble(lengthStr);
+                        double width = Double.parseDouble(widthStr);
+
+                    
+                        double area = length * width;
+
+                        // Display length, width, and area
+                        out.println("<p>Chiều dài: " + length + "</p>");
+                        out.println("<p>Chiều rộng: " + width + "</p>");
+                        out.println("<p>Diện tích: " + area + "</p>");
+                        
+                    } catch (NumberFormatException e) {
+                        out.println("<p style='color:red;'>Chiều dài và chiều rộng phải là số hợp lệ!</p>");
+                    }
+                }
+            }
+        %>
+    </body>
+</html>

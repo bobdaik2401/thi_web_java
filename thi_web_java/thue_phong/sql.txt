@@ -1,0 +1,19 @@
+-- Tạo cơ sở dữ liệu
+CREATE DATABASE QLThuePhong;
+USE QLThuePhong;
+
+-- Tạo bảng ThuePhong
+CREATE TABLE ThuePhong (
+    MaP VARCHAR(10) PRIMARY KEY,  -- Mã phòng (chuỗi, tối đa 10 ký tự)
+    MaKH VARCHAR(10),             -- Mã khách hàng (chuỗi, tối đa 10 ký tự)
+    NgayDen DATE,                 -- Ngày đến (dạng ngày)
+    NgayDi DATE                   -- Ngày đi (dạng ngày)
+);
+
+-- Thêm dữ liệu mẫu vào bảng ThuePhong
+INSERT INTO ThuePhong (MaP, MaKH, NgayDen, NgayDi) VALUES
+('P001', 'KH001', '2024-12-01', '2024-12-05'),
+('P002', 'KH002', '2024-12-03', '2024-12-06'),
+('P003', 'KH003', '2024-12-04', '2024-12-10'),
+('P004', 'KH004', '2024-12-02', '2024-12-07'),
+('P005', 'KH005', '2024-12-01', '2024-12-04');

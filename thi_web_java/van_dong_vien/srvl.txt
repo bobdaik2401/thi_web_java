@@ -1,0 +1,82 @@
+package controllers;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet("/XLThemVDV")
+public class XLThemVDV extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String MaVDV = request.getParameter("MaVDV");
+        String Hoten = request.getParameter("Hoten");
+        int SoNamTD = Integer.parseInt(request.getParameter("SoNamTD"));
+        int SoHC = Integer.parseInt(request.getParameter("SoHC"));
+
+        String jdbcURL = "jdbc:mysql://localhost:3306/QLVanDongVien";
+        String dbUser = "root";
+        String dbPassword = "password";
+        String message = null;
+
+        try (Connection connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword)) {
+            // Kiểm tra trùng MaVDV
+            String checkSQL = "SELECT COUNT(*) FROM VDVien WHERE MaVDV = ?";
+            PreparedStatement checkStmt = connection.prepareStatement(checkSQL);
+            checkStmt.setString(1, MaVDV);
+            ResultSet checkResult = checkStmt.executeQuery();
+            checkResult.next();
+
+            if (checkResult.getInt(1) > 0) {
+                message = "Thêm không thành công do trùng Mã số vận động viên: " + MaVDV;
+            } else {
+                // Thêm vận động viên
+                String insertSQL = "INSERT INTO VDVien (MaVDV, Hoten, SoNamTD, SoHC) VALUES (?, ?, ?, ?)";
+                PreparedStatement insertStmt = connection.prepareStatement(insertSQL);
+                insertStmt.setString(1, MaVDV);
+                insertStmt.setString(2, Hoten);
+                insertStmt.setInt(3, SoNamTD);
+                insertStmt.setInt(4, SoHC);
+
+                int rowsInserted = insertStmt.executeUpdate();
+                if (rowsInserted > 0) {
+                    message = "Thêm thành công Mã số vận động viên: " + MaVDV;
+                }
+            }
+
+            // Lấy danh sách vận động viên
+            List<Map<String, String>> dsVDVien = new ArrayList<>();
+            String selectSQL = "SELECT * FROM VDVien";
+            PreparedStatement selectStmt = connection.prepareStatement(selectSQL);
+            ResultSet resultSet = selectStmt.executeQuery();
+
+            while (resultSet.next()) {
+                Map<String, String> vdVien = new HashMap<>();
+                vdVien.put("MaVDV", resultSet.getString("MaVDV"));
+                vdVien.put("Hoten", resultSet.getString("Hoten"));
+                vdVien.put("SoNamTD", String.valueOf(resultSet.getInt("SoNamTD")));
+                vdVien.put("SoHC", String.valueOf(resultSet.getInt("SoHC")));
+
+                // Tính tiền thưởng
+                int TienThuong = resultSet.getInt("SoHC") * 5000000 + resultSet.getInt("SoNamTD") * 400000;
+                vdVien.put("TienThuong", String.format("%,d VND", TienThuong));
+
+                dsVDVien.add(vdVien);
+            }
+
+            // Truyền dữ liệu về JSP
+            request.setAttribute("dsVDVien", dsVDVien);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            message = "Lỗi kết nối cơ sở dữ liệu!";
+        }
+
+        request.setAttribute("message", message);
+        request.getRequestDispatcher("ThemVDV.jsp").forward(request, response);
+    }
+}

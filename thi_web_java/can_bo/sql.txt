@@ -1,0 +1,20 @@
+CREATE DATABASE QLCanBo;
+
+USE QLCanBo;
+
+CREATE TABLE CanBo (
+    MaCB VARCHAR(10) NOT NULL,
+    TenCB VARCHAR(100) NOT NULL,
+    NamVN INT NOT NULL,  -- Năm vào ngành
+    HeSL DECIMAL(5, 2) NOT NULL,  -- Hệ số lương
+    PRIMARY KEY (MaCB)
+);
+
+-- Thêm dữ liệu mẫu
+INSERT INTO CanBo (MaCB, TenCB, NamVN, HeSL)
+VALUES
+('CB001', 'Nguyễn Văn A', 2010, 2.5),
+('CB002', 'Trần Thị B', 2015, 3.0),
+('CB003', 'Lê Hoàng C', 2012, 2.8),
+('CB004', 'Phạm Minh D', 2008, 3.2),
+('CB005', 'Đỗ Thị E', 2018, 2.6);

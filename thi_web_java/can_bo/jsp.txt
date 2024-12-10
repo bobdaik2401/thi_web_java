@@ -1,0 +1,74 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Xóa Cán Bộ</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Xóa Cán Bộ</h1>
+    <form action="XLXoaCB" method="post">
+        <label for="MaCB">Mã cán bộ:</label>
+        <input type="text" id="MaCB" name="MaCB" required><br><br>
+        <button type="submit">Xoá</button>
+    </form>
+
+    <h2>Danh sách Cán Bộ</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Mã cán bộ</th>
+            <th>Tên cán bộ</th>
+            <th>Năm vào ngành</th>
+            <th>Hệ số lương</th>
+            <th>Thâm niên công tác</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%
+            List<Map<String, String>> dsCanBo = (List<Map<String, String>>) request.getAttribute("dsCanBo");
+            String message = (String) request.getAttribute("message");
+            if (message != null) {
+        %>
+            <tr>
+                <td colspan="5" style="color: red;"><%= message %></td>
+            </tr>
+        <%
+            }
+            if (dsCanBo != null) {
+                int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+                for (Map<String, String> canBo : dsCanBo) {
+                    int namVN = Integer.parseInt(canBo.get("NamVN"));
+                    int thamnien = currentYear - namVN;
+        %>
+            <tr>
+                <td><%= canBo.get("MaCB") %></td>
+                <td><%= canBo.get("TenCB") %></td>
+                <td><%= canBo.get("NamVN") %></td>
+                <td><%= canBo.get("HeSL") %></td>
+                <td><%= thamnien %> năm</td>
+            </tr>
+        <%
+                }
+            }
+        %>
+        </tbody>
+    </table>
+</body>
+</html>

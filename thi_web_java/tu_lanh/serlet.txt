@@ -1,0 +1,82 @@
+package controllers;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet("/XLThemTL")
+public class XLThemTL extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String Ma = request.getParameter("Ma");
+        String HangSX = request.getParameter("HangSX");
+        int DungTich = Integer.parseInt(request.getParameter("DungTich"));
+        int SoLuong = Integer.parseInt(request.getParameter("SoLuong"));
+
+        String jdbcURL = "jdbc:mysql://localhost:3306/QLTuLanh";
+        String dbUser = "root";
+        String dbPassword = "password";
+        String message = null;
+
+        try (Connection connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword)) {
+            // Kiểm tra trùng Ma
+            String checkSQL = "SELECT COUNT(*) FROM TuLanh WHERE Ma = ?";
+            PreparedStatement checkStmt = connection.prepareStatement(checkSQL);
+            checkStmt.setString(1, Ma);
+            ResultSet checkResult = checkStmt.executeQuery();
+            checkResult.next();
+
+            if (checkResult.getInt(1) > 0) {
+                message = "Thêm không thành công do trùng Mã số tủ lạnh: " + Ma;
+            } else {
+                // Thêm tủ lạnh
+                String insertSQL = "INSERT INTO TuLanh (Ma, HangSX, DungTich, SoLuong) VALUES (?, ?, ?, ?)";
+                PreparedStatement insertStmt = connection.prepareStatement(insertSQL);
+                insertStmt.setString(1, Ma);
+                insertStmt.setString(2, HangSX);
+                insertStmt.setInt(3, DungTich);
+                insertStmt.setInt(4, SoLuong);
+
+                int rowsInserted = insertStmt.executeUpdate();
+                if (rowsInserted > 0) {
+                    message = "Thêm thành công Mã số tủ lạnh: " + Ma;
+                }
+            }
+
+            // Lấy danh sách tủ lạnh
+            List<Map<String, String>> dsTuLanh = new ArrayList<>();
+            String selectSQL = "SELECT * FROM TuLanh";
+            PreparedStatement selectStmt = connection.prepareStatement(selectSQL);
+            ResultSet resultSet = selectStmt.executeQuery();
+
+            while (resultSet.next()) {
+                Map<String, String> tuLanh = new HashMap<>();
+                tuLanh.put("Ma", resultSet.getString("Ma"));
+                tuLanh.put("HangSX", resultSet.getString("HangSX"));
+                tuLanh.put("DungTich", String.valueOf(resultSet.getInt("DungTich")));
+                tuLanh.put("SoLuong", String.valueOf(resultSet.getInt("SoLuong")));
+
+                // Tính tiền vận chuyển
+                int TienVanChuyen = resultSet.getInt("DungTich") * 50000 * resultSet.getInt("SoLuong");
+                tuLanh.put("TienVanChuyen", String.format("%,d VND", TienVanChuyen));
+
+                dsTuLanh.add(tuLanh);
+            }
+
+            // Truyền dữ liệu về JSP
+            request.setAttribute("dsTuLanh", dsTuLanh);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            message = "Lỗi kết nối cơ sở dữ liệu!";
+        }
+
+        request.setAttribute("message", message);
+        request.getRequestDispatcher("ThemTL.jsp").forward(request, response);
+    }
+}

@@ -1,0 +1,20 @@
+CREATE DATABASE QLHoDan;
+
+USE QLHoDan;
+
+CREATE TABLE HoDan (
+    MaHD VARCHAR(10) NOT NULL,
+    TenCH VARCHAR(100) NOT NULL,
+    SoTV INT NOT NULL,
+    ThuNhap DECIMAL(10, 2) NOT NULL,
+    PRIMARY KEY (MaHD)
+);
+
+-- Thêm dữ liệu mẫu
+INSERT INTO HoDan (MaHD, TenCH, SoTV, ThuNhap)
+VALUES
+('HD001', 'Nguyen Van A', 4, 4500000),
+('HD002', 'Le Thi B', 3, 3500000),
+('HD003', 'Tran Minh C', 5, 5000000),
+('HD004', 'Pham Quang D', 6, 1800000),
+('HD005', 'Nguyen Thi E', 4, 2500000);

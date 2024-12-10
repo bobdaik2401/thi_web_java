@@ -1,0 +1,141 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chu vi và diện tích hình chữ nhật</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 600px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff7e5f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover {
+            background-color: #ff6b4a;
+        }
+        .result, .error {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .result {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <<h1>HOÀNG NĂNG HAI_ LỚP DHTI15A2ND_2120320003</h1>
+        <h2>Nhập thông tin:</h2>
+        <form action="hoangnanghai_CVDT.jsp" method="post">
+            <label for="chieudai">Gõ vào chiều dài:</label>
+            <input type="text" id="chieudai" name="chieudai" value="<%= request.getParameter("chieudai") != null ? request.getParameter("chieudai") : "" %>"><br>
+
+            <label for="chieurong">Gõ vào chiều rộng:</label>
+            <input type="text" id="chieurong" name="chieurong" value="<%= request.getParameter("chieurong") != null ? request.getParameter("chieurong") : "" %>"><br>
+
+            <input type="checkbox" id="chuvicb" name="chon" value="chuvicb" <%= request.getParameterValues("chon") != null && java.util.Arrays.asList(request.getParameterValues("chon")).contains("chuvicb") ? "checked" : "" %>>
+            <label for="chuvicb">Chu vi</label>
+
+            <input type="checkbox" id="dientichcb" name="chon" value="dientichcb" <%= request.getParameterValues("chon") != null && java.util.Arrays.asList(request.getParameterValues("chon")).contains("dientichcb") ? "checked" : "" %>>
+            <label for="dientichcb">Diện tích</label><br><br>
+
+            <input type="submit" value="Tính toán">
+        </form>
+
+        <%
+            String chieudaiStr = request.getParameter("chieudai");
+            String chieurongStr = request.getParameter("chieurong");
+            String[] chon = request.getParameterValues("chon");
+
+            if (chieudaiStr != null && chieurongStr != null) {
+                try {
+                    double chieudai = Double.parseDouble(chieudaiStr);
+                    double chieurong = Double.parseDouble(chieurongStr);
+
+                    if (chon == null) {
+                        out.println("<div class='error'>Chưa chọn checkbox</div>");
+                    } else {
+                        boolean chuvicbChecked = false;
+                        boolean dientichcbChecked = false;
+
+                        for (String checkbox : chon) {
+                            if (checkbox.equals("chuvicb")) {
+                                chuvicbChecked = true;
+                            }
+                            if (checkbox.equals("dientichcb")) {
+                                dientichcbChecked = true;
+                            }
+                        }
+
+                        out.println("<div class='result'>");
+                        if (chuvicbChecked && dientichcbChecked) {
+                            double chuvi = 2 * (chieudai + chieurong);
+                            double dientich = chieudai * chieurong;
+                            out.println("Chu vi: " + chuvi + "<br>");
+                            out.println("Diện tích: " + dientich);
+                        } else if (chuvicbChecked) {
+                            double chuvi = 2 * (chieudai + chieurong);
+                            out.println("Chu vi: " + chuvi);
+                        } else if (dientichcbChecked) {
+                            double dientich = chieudai * chieurong;
+                            out.println("Diện tích: " + dientich);
+                        }
+                        out.println("</div>");
+                    }
+                } catch (NumberFormatException e) {
+                    out.println("<div class='error'>Vui lòng nhập số hợp lệ cho chiều dài và chiều rộng.</div>");
+                }
+            }
+        %>
+    </div>
+</body>
+</html>

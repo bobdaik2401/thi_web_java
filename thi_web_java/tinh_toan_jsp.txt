@@ -1,0 +1,168 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Form Tính Toán</title>
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .calculator-form {
+            border: 2px solid green;
+            border-radius: 12px;
+            padding: 30px;
+            width: 350px;
+            background-color: #fff;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #00bfa5;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            align-items: center;
+        }
+
+        .form-row label {
+            width: 30%;
+            text-align: right;
+            margin-right: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-row input {
+            width: 65%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .calculator-form button {
+            width: 60px;
+            padding: 10px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+        }
+
+        .calculator-form button:hover {
+            background-color: #388e3c;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+
+        .calculator-form button[type="reset"] {
+            background-color: #f44336;
+        }
+
+        .calculator-form button[type="reset"]:hover {
+            background-color: #d32f2f;
+        }
+
+        input[readonly] {
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+        }
+        </style>
+    </head>
+    <body>
+        <div class="calculator-form">
+            <h1>FORM TÍNH TOÁN</h1>
+            <div>Hoàng Năng Hải_DHTI15A2ND_21203200003</div>
+            <form action="hoangnanghai_tinhtoan.jsp" method="POST">
+                <div class="form-row">
+                    <label for="a">a:</label>
+                    <input type="text" id="a" name="a" />
+                </div>
+                <div class="form-row">
+                    <label for="b">b:</label>
+                    <input type="text" id="b" name="b" />
+                </div>
+                <div class="form-row">
+                    <label for="result">Kết quả:</label>
+                    <input type="text" id="result" name="result" readonly />
+                </div>
+                <div class="form-row">
+                    <div class="button-group">
+                        <button type="submit" name="operation" value="add">+</button>
+                        <button type="submit" name="operation" value="subtract">-</button>
+                        <button type="submit" name="operation" value="multiply">*</button>
+                        <button type="submit" name="operation" value="divide">/</button>
+                        <button type="reset">Reset</button>
+                    </div>
+                </div>
+            </form>
+
+            <%
+                String aStr = request.getParameter("a");
+                String bStr = request.getParameter("b");
+                String operation = request.getParameter("operation");
+                double result = 0;
+                String displayResult = ""; // This will hold the formatted result
+
+                if (aStr != null && bStr != null && !aStr.isEmpty() && !bStr.isEmpty()) {
+                    try {
+                        double a = Double.parseDouble(aStr);
+                        double b = Double.parseDouble(bStr);
+
+                        if (operation != null) {
+                            switch (operation) {
+                                case "add":
+                                    result = a + b;
+                                    displayResult = a + " + " + b + " = " + result;
+                                    break;
+                                case "subtract":
+                                    result = a - b;
+                                    displayResult = a + " - " + b + " = " + result;
+                                    break;
+                                case "multiply":
+                                    result = a * b;
+                                    displayResult = a + " * " + b + " = " + result;
+                                    break;
+                                case "divide":
+                                    if (b != 0) {
+                                        result = a / b;
+                                        displayResult = a + " / " + b + " = " + result;
+                                    } else {
+                                        out.println("<p style='color:red;'>Không thể chia cho 0!</p>");
+                                    }
+                                    break;
+                            }
+                            // Update the result field with the formatted string
+                            out.println("<script>document.getElementById('result').value = '" + displayResult + "';</script>");
+                        }
+                    } catch (NumberFormatException e) {
+                        out.println("<p style='color:red;'>Vui lòng nhập số hợp lệ cho cả a và b!</p>");
+                    }
+                }
+            %>
+        </div>
+    </body>
+</html>

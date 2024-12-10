@@ -1,0 +1,61 @@
+package controllers;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet("/XLTimKiemTP")
+public class XLTimKiemTP extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String maP = request.getParameter("maP");
+        List<Map<String, String>> dsPhong = new ArrayList<>();
+        String message = null;
+
+        String jdbcURL = "jdbc:mysql://localhost:3306/QLThuePhong";
+        String dbUser = "root";
+        String dbPassword = "password";
+
+        try (Connection connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword)) {
+            String sql = "SELECT * FROM ThuePhong WHERE MaP LIKE ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, "%" + maP + "%");
+
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                Map<String, String> phong = new HashMap<>();
+                phong.put("MaP", resultSet.getString("MaP"));
+                phong.put("MaKH", resultSet.getString("MaKH"));
+                phong.put("NgayDen", resultSet.getDate("NgayDen").toString());
+                phong.put("NgayDi", resultSet.getDate("NgayDi").toString());
+
+                // Tính tiền thuê phòng
+                Date ngayDen = resultSet.getDate("NgayDen");
+                Date ngayDi = resultSet.getDate("NgayDi");
+                long days = (ngayDi.getTime() - ngayDen.getTime()) / (1000 * 60 * 60 * 24) + 1;
+                long tienThue = days * 300000;
+                phong.put("TienThue", String.valueOf(tienThue));
+
+                dsPhong.add(phong);
+            }
+
+            if (dsPhong.isEmpty()) {
+                message = "Không tìm thấy phòng có mã: " + maP;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            message = "Lỗi kết nối cơ sở dữ liệu!";
+        }
+
+        // Truyền dữ liệu về lại trang JSP
+        request.setAttribute("dsPhong", dsPhong);
+        request.setAttribute("message", message);
+        request.getRequestDispatcher("TimKiemTP.jsp").forward(request, response);
+    }
+}

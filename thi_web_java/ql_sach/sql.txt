@@ -1,0 +1,20 @@
+CREATE DATABASE QLSach;
+
+USE QLSach;
+
+CREATE TABLE Sach (
+    MaSach VARCHAR(10) NOT NULL,
+    TenSach VARCHAR(100) NOT NULL,
+    SoLuong INT NOT NULL,
+    DonGia DECIMAL(10, 2) NOT NULL,
+    PRIMARY KEY (MaSach)
+);
+
+-- Thêm dữ liệu mẫu
+INSERT INTO Sach (MaSach, TenSach, SoLuong, DonGia)
+VALUES
+('S001', 'Lập trình Java', 12, 250000),
+('S002', 'C++ Căn bản', 6, 180000),
+('S003', 'Học Python', 15, 220000),
+('S004', 'Thực hành SQL', 3, 120000),
+('S005', 'Lập trình Web', 8, 200000);

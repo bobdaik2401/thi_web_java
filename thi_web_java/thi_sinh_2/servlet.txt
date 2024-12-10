@@ -1,0 +1,79 @@
+package controllers;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet("/XLThemTS")
+public class XLThemTS extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String SBD = request.getParameter("SBD");
+        String Hoten = request.getParameter("Hoten");
+        float DiemToan = Float.parseFloat(request.getParameter("DiemToan"));
+        float DiemVan = Float.parseFloat(request.getParameter("DiemVan"));
+
+        String jdbcURL = "jdbc:mysql://localhost:3306/QLThiSinh";
+        String dbUser = "root";
+        String dbPassword = "password";
+        String message = null;
+
+        try (Connection connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword)) {
+            // Kiểm tra trùng SBD
+            String checkSQL = "SELECT COUNT(*) FROM ThiSinh WHERE SBD = ?";
+            PreparedStatement checkStmt = connection.prepareStatement(checkSQL);
+            checkStmt.setString(1, SBD);
+            ResultSet checkResult = checkStmt.executeQuery();
+            checkResult.next();
+
+            if (checkResult.getInt(1) > 0) {
+                message = "Thêm không thành công do trùng số báo danh: " + SBD;
+            } else {
+                // Thêm thí sinh
+                String insertSQL = "INSERT INTO ThiSinh (SBD, Hoten, DiemToan, DiemVan) VALUES (?, ?, ?, ?)";
+                PreparedStatement insertStmt = connection.prepareStatement(insertSQL);
+                insertStmt.setString(1, SBD);
+                insertStmt.setString(2, Hoten);
+                insertStmt.setFloat(3, DiemToan);
+                insertStmt.setFloat(4, DiemVan);
+
+                int rowsInserted = insertStmt.executeUpdate();
+                if (rowsInserted > 0) {
+                    message = "Thêm thành công Số báo danh: " + SBD;
+                }
+            }
+
+            // Lấy danh sách thí sinh
+            List<Map<String, String>> dsThiSinh = new ArrayList<>();
+            String selectSQL = "SELECT * FROM ThiSinh";
+            PreparedStatement selectStmt = connection.prepareStatement(selectSQL);
+            ResultSet resultSet = selectStmt.executeQuery();
+
+            while (resultSet.next()) {
+                Map<String, String> thiSinh = new HashMap<>();
+                thiSinh.put("SBD", resultSet.getString("SBD"));
+                thiSinh.put("Hoten", resultSet.getString("Hoten"));
+                thiSinh.put("DiemToan", String.valueOf(resultSet.getFloat("DiemToan")));
+                thiSinh.put("DiemVan", String.valueOf(resultSet.getFloat("DiemVan")));
+                float tongDiem = resultSet.getFloat("DiemToan") + resultSet.getFloat("DiemVan");
+                thiSinh.put("KetQua", tongDiem >= 10 ? "Đỗ" : "Trượt");
+                dsThiSinh.add(thiSinh);
+            }
+
+            // Truyền dữ liệu về JSP
+            request.setAttribute("dsThiSinh", dsThiSinh);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            message = "Lỗi kết nối cơ sở dữ liệu!";
+        }
+
+        request.setAttribute("message", message);
+        request.getRequestDispatcher("ThemTS.jsp").forward(request, response);
+    }
+}

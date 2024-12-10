@@ -1,0 +1,59 @@
+package controllers;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet("/XLTimKiemHD")
+public class XLTimKiemHD extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String maHD = request.getParameter("maHD");
+        List<Map<String, String>> dsHoaDon = new ArrayList<>();
+        String message = null;
+
+        String jdbcURL = "jdbc:mysql://localhost:3306/QLHoaDon";
+        String dbUser = "root";
+        String dbPassword = "password";
+
+        try (Connection connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword)) {
+            String sql = "SELECT * FROM HoaDon WHERE MaHD LIKE ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, "%" + maHD + "%");
+
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                Map<String, String> hoaDon = new HashMap<>();
+                hoaDon.put("MaHD", resultSet.getString("MaHD"));
+                hoaDon.put("MaKH", resultSet.getString("MaKH"));
+                hoaDon.put("NgayHD", resultSet.getString("NgayHD"));
+                hoaDon.put("SoKW", String.valueOf(resultSet.getInt("SoKW")));
+
+                // Tính thành tiền
+                int soKW = resultSet.getInt("SoKW");
+                int thanhTien = soKW * 2000;
+                hoaDon.put("ThanhTien", String.valueOf(thanhTien));
+
+                dsHoaDon.add(hoaDon);
+            }
+
+            if (dsHoaDon.isEmpty()) {
+                message = "Không tìm thấy mã hóa đơn: " + maHD;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            message = "Lỗi kết nối cơ sở dữ liệu!";
+        }
+
+        // Truyền dữ liệu về lại trang JSP
+        request.setAttribute("dsHoaDon", dsHoaDon);
+        request.setAttribute("message", message);
+        request.getRequestDispatcher("TimKiemHD.jsp").forward(request, response);
+    }
+}

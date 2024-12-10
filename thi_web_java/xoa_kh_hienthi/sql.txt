@@ -1,0 +1,38 @@
+-- Create the database if it doesn't exist
+CREATE DATABASE IF NOT EXISTS QLKhachHang;
+
+-- Select the database
+USE QLKhachHang;
+
+-- Create the KhachHang table
+CREATE TABLE IF NOT EXISTS KhachHang (
+    maKH INT PRIMARY KEY AUTO_INCREMENT,
+    tenKH VARCHAR(100),
+    email VARCHAR(100),
+    soTaiKhoan VARCHAR(20)
+);
+
+-- Update existing sample data
+UPDATE KhachHang SET 
+    tenKH = 'Nguyen Van An', 
+    email = 'nguyenvanan@example.com', 
+    soTaiKhoan = '111222333' 
+WHERE maKH = 1;
+
+UPDATE KhachHang SET 
+    tenKH = 'Tran Thi Bich', 
+    email = 'tranthibich@example.com', 
+    soTaiKhoan = '222333444' 
+WHERE maKH = 2;
+
+UPDATE KhachHang SET 
+    tenKH = 'Le Van Cuong', 
+    email = 'levancuong@example.com', 
+    soTaiKhoan = '333444555' 
+WHERE maKH = 3;
+
+-- Insert new sample data
+INSERT INTO KhachHang (tenKH, email, soTaiKhoan) VALUES 
+('Pham Thi D', 'phamthid@example.com', '444555666'),
+('Hoang Van E', 'hoangvane@example.com', '555666777'),
+('Vu Thi F', 'vuthif@example.com', '666777888');

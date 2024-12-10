@@ -1,0 +1,19 @@
+CREATE DATABASE QLSinhVien;
+
+USE QLSinhVien;
+
+CREATE TABLE Student (
+    MSSV VARCHAR(10) PRIMARY KEY,
+    Hoten VARCHAR(100) NOT NULL,
+    Lop VARCHAR(50) NOT NULL,
+    DiemTB FLOAT NOT NULL CHECK (DiemTB >= 0 AND DiemTB <= 10)
+);
+
+-- Thêm dữ liệu mẫu
+INSERT INTO Student (MSSV, Hoten, Lop, DiemTB)
+VALUES
+('SV001', 'Nguyen Van A', 'K60', 8.9),
+('SV002', 'Tran Thi B', 'K61', 7.4),
+('SV003', 'Le Van C', 'K62', 5.5),
+('SV004', 'Pham Thi D', 'K60', 3.8),
+('SV005', 'Hoang Van E', 'K61', 6.8);

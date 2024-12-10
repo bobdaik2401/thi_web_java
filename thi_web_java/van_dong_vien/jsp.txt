@@ -1,0 +1,77 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Thêm Vận Động Viên</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Thêm Vận Động Viên</h1>
+    <form action="XLThemVDV" method="post">
+        <label for="MaVDV">Mã số vận động viên:</label>
+        <input type="text" id="MaVDV" name="MaVDV" required><br><br>
+        <label for="Hoten">Họ và tên:</label>
+        <input type="text" id="Hoten" name="Hoten" required><br><br>
+        <label for="SoNamTD">Số năm thi đấu:</label>
+        <input type="number" id="SoNamTD" name="SoNamTD" required><br><br>
+        <label for="SoHC">Số huy chương:</label>
+        <input type="number" id="SoHC" name="SoHC" required><br><br>
+        <button type="submit">Thêm</button>
+    </form>
+
+    <h2>Danh sách vận động viên</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Mã số vận động viên</th>
+            <th>Họ và tên</th>
+            <th>Số năm thi đấu</th>
+            <th>Số huy chương</th>
+            <th>Tiền thưởng</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%
+            List<Map<String, String>> dsVDVien = (List<Map<String, String>>) request.getAttribute("dsVDVien");
+            String message = (String) request.getAttribute("message");
+            if (message != null) {
+        %>
+            <tr>
+                <td colspan="5" style="color: red;"><%= message %></td>
+            </tr>
+        <%
+            }
+            if (dsVDVien != null) {
+                for (Map<String, String> vdVien : dsVDVien) {
+        %>
+            <tr>
+                <td><%= vdVien.get("MaVDV") %></td>
+                <td><%= vdVien.get("Hoten") %></td>
+                <td><%= vdVien.get("SoNamTD") %></td>
+                <td><%= vdVien.get("SoHC") %></td>
+                <td><%= vdVien.get("TienThuong") %></td>
+            </tr>
+        <%
+                }
+            }
+        %>
+        </tbody>
+    </table>
+</body>
+</html>

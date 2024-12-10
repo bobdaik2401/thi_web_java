@@ -1,0 +1,106 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
+
+import java.sql.*;
+import jakarta.servlet.*;
+import java.util.*;
+import java.io.IOException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
+
+/**
+ *
+ * @author Acer
+ */
+@WebServlet(urlPatterns={"/XLThemNV"})
+public class XLThemNV extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+         response.setContentType("text/html;charset=UTF-8");
+        String maNV = request.getParameter("maNV");
+        String hoTen = request.getParameter("hoTen");
+        String chucVu = request.getParameter("chucVu");
+        String heSoLuongStr = request.getParameter("heSoLuong");
+        double heSoLuong = Double.parseDouble(heSoLuongStr);
+
+        String message = "";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/qlnhanvien", "root", "");
+            PreparedStatement checkStmt = conn.prepareStatement("SELECT * FROM nhanvien WHERE MaNV = ?");
+            checkStmt.setString(1, maNV);
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (rs.next()) {
+                request.setAttribute("thongBao", "Thêm không thành công do trùng Mã số: " + maNV + ".");
+            } else {
+                PreparedStatement insertStmt = conn.prepareStatement("INSERT INTO nhanvien VALUES (?, ?, ?, ?)");
+                insertStmt.setString(1, maNV);
+                insertStmt.setString(2, hoTen);
+                insertStmt.setString(3, chucVu);
+                insertStmt.setDouble(4, heSoLuong);
+                insertStmt.executeUpdate();
+                request.setAttribute("thongBaoXanh", "Thêm thành công Mã số nhân viên " + maNV + ".");
+            }
+
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            message = "Lỗi trong quá trình xử lý.";
+        }
+
+        request.setAttribute("message", message);
+        request.getRequestDispatcher("ThemNV.jsp").forward(request, response);
+    }
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}

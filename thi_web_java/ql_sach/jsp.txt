@@ -1,0 +1,86 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Xóa Sách</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Xóa Sách</h1>
+    <form action="XLXoaSach" method="post">
+        <label for="MaSach">Mã sách:</label>
+        <input type="text" id="MaSach" name="MaSach" required><br><br>
+        <button type="submit">Xoá</button>
+    </form>
+
+    <h2>Danh sách Sách</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Mã sách</th>
+            <th>Tên sách</th>
+            <th>Số lượng</th>
+            <th>Đơn giá</th>
+            <th>Chiết khấu</th>
+            <th>Giá sau chiết khấu</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%
+            List<Map<String, String>> dsSach = (List<Map<String, String>>) request.getAttribute("dsSach");
+            String message = (String) request.getAttribute("message");
+            if (message != null) {
+        %>
+            <tr>
+                <td colspan="6" style="color: red;"><%= message %></td>
+            </tr>
+        <%
+            }
+            if (dsSach != null) {
+                for (Map<String, String> sach : dsSach) {
+                    double discount = 0;
+                    double chietKhau = 0;
+                    int soLuong = Integer.parseInt(sach.get("SoLuong"));
+                    double donGia = Double.parseDouble(sach.get("DonGia"));
+                    
+                    if (soLuong > 10) {
+                        discount = 0.05;
+                    } else if (soLuong > 5) {
+                        discount = 0.03;
+                    }
+
+                    chietKhau = soLuong * donGia * discount;
+                    double giaSauChietKhau = soLuong * donGia - chietKhau;
+        %>
+            <tr>
+                <td><%= sach.get("MaSach") %></td>
+                <td><%= sach.get("TenSach") %></td>
+                <td><%= sach.get("SoLuong") %></td>
+                <td><%= sach.get("DonGia") %></td>
+                <td><%= String.format("%.0f", chietKhau) %> đ</td>
+                <td><%= String.format("%.0f", giaSauChietKhau) %> đ</td>
+            </tr>
+        <%
+                }
+            }
+        %>
+        </tbody>
+    </table>
+</body>
+</html>

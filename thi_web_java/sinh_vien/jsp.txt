@@ -1,0 +1,75 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tìm Kiếm Sinh Viên</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tìm Kiếm Sinh Viên</h1>
+    <form action="XLTimKiemSV" method="post">
+        <label for="maSV">Nhập mã sinh viên:</label>
+        <input type="text" id="maSV" name="maSV" required>
+        <button type="submit">Tìm kiếm</button>
+    </form>
+
+    <%
+        // Lấy thông báo hoặc danh sách sinh viên từ request
+        String message = (String) request.getAttribute("message");
+        java.util.List<java.util.Map<String, String>> dsSinhVien =
+            (java.util.List<java.util.Map<String, String>>) request.getAttribute("dsSinhVien");
+
+        // Hiển thị thông báo nếu không tìm thấy sinh viên
+        if (message != null) {
+    %>
+        <p style="color: red;"><%= message %></p>
+    <%
+        } else if (dsSinhVien != null && !dsSinhVien.isEmpty()) {
+    %>
+        <table>
+            <tr>
+                <th>Mã SV</th>
+                <th>Họ Tên</th>
+                <th>Ngày Sinh</th>
+                <th>Điểm TB</th>
+                <th>Học Bổng</th>
+            </tr>
+            <%
+                for (java.util.Map<String, String> sv : dsSinhVien) {
+            %>
+                <tr>
+                    <td><%= sv.get("MaSV") %></td>
+                    <td><%= sv.get("HoTen") %></td>
+                    <td><%= sv.get("NgaySinh") %></td>
+                    <td><%= sv.get("DiemTB") %></td>
+                    <td><%= sv.get("HocBong") %></td>
+                </tr>
+            <%
+                }
+            %>
+        </table>
+    <%
+        }
+    %>
+</body>
+</html>

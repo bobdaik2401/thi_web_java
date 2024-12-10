@@ -1,0 +1,77 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Thêm Giáo Viên</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Thêm Giáo Viên</h1>
+    <form action="XLThemGV" method="post">
+        <label for="MaGV">Mã số giáo viên:</label>
+        <input type="text" id="MaGV" name="MaGV" required><br><br>
+        <label for="Hoten">Họ và tên:</label>
+        <input type="text" id="Hoten" name="Hoten" required><br><br>
+        <label for="NamSinh">Năm sinh:</label>
+        <input type="number" id="NamSinh" name="NamSinh" required><br><br>
+        <label for="HeSoLuong">Hệ số lương:</label>
+        <input type="number" id="HeSoLuong" name="HeSoLuong" step="0.1" min="0" required><br><br>
+        <button type="submit">Thêm</button>
+    </form>
+
+    <h2>Danh sách giáo viên</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Mã số giáo viên</th>
+            <th>Họ và tên</th>
+            <th>Năm sinh</th>
+            <th>Hệ số lương</th>
+            <th>Số tiền trợ cấp</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%
+            List<Map<String, String>> dsGiaoVien = (List<Map<String, String>>) request.getAttribute("dsGiaoVien");
+            String message = (String) request.getAttribute("message");
+            if (message != null) {
+        %>
+            <tr>
+                <td colspan="5" style="color: red;"><%= message %></td>
+            </tr>
+        <%
+            }
+            if (dsGiaoVien != null) {
+                for (Map<String, String> giaoVien : dsGiaoVien) {
+        %>
+            <tr>
+                <td><%= giaoVien.get("MaGV") %></td>
+                <td><%= giaoVien.get("Hoten") %></td>
+                <td><%= giaoVien.get("NamSinh") %></td>
+                <td><%= giaoVien.get("HeSoLuong") %></td>
+                <td><%= giaoVien.get("TroCap") %></td>
+            </tr>
+        <%
+                }
+            }
+        %>
+        </tbody>
+    </table>
+</body>
+</html>

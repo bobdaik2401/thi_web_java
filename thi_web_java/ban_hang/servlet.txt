@@ -1,0 +1,69 @@
+package controllers;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet("/XLXoaBH")
+public class XLXoaBH extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String MaKH = request.getParameter("MaKH");
+
+        String jdbcURL = "jdbc:mysql://localhost:3306/QLBanHang";
+        String dbUser = "root";
+        String dbPassword = "password";
+        String message = null;
+
+        try (Connection connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword)) {
+            // Kiểm tra xem mã khách hàng có tồn tại
+            String checkSQL = "SELECT COUNT(*) FROM BanHang WHERE MaKH = ?";
+            PreparedStatement checkStmt = connection.prepareStatement(checkSQL);
+            checkStmt.setString(1, MaKH);
+            ResultSet checkResult = checkStmt.executeQuery();
+            checkResult.next();
+
+            if (checkResult.getInt(1) == 0) {
+                message = "Xoá không thành công do không tìm thấy mã khách hàng: " + MaKH;
+            } else {
+                // Xoá khách hàng
+                String deleteSQL = "DELETE FROM BanHang WHERE MaKH = ?";
+                PreparedStatement deleteStmt = connection.prepareStatement(deleteSQL);
+                deleteStmt.setString(1, MaKH);
+                deleteStmt.executeUpdate();
+                message = "Xoá thành công mã khách hàng: " + MaKH;
+            }
+
+            // Lấy danh sách bán hàng
+            List<Map<String, String>> dsBanHang = new ArrayList<>();
+            String selectSQL = "SELECT * FROM BanHang";
+            PreparedStatement selectStmt = connection.prepareStatement(selectSQL);
+            ResultSet resultSet = selectStmt.executeQuery();
+
+            while (resultSet.next()) {
+                Map<String, String> banHang = new HashMap<>();
+                banHang.put("MaKH", resultSet.getString("MaKH"));
+                banHang.put("MaSP", resultSet.getString("MaSP"));
+                banHang.put("GiaSP", String.valueOf(resultSet.getDouble("GiaSP")));
+                banHang.put("SoLuong", String.valueOf(resultSet.getInt("SoLuong")));
+
+                dsBanHang.add(banHang);
+            }
+
+            // Truyền dữ liệu về JSP
+            request.setAttribute("dsBanHang", dsBanHang);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            message = "Lỗi kết nối cơ sở dữ liệu!";
+        }
+
+        request.setAttribute("message", message);
+        request.getRequestDispatcher("XoaBH.jsp").forward(request, response);
+    }
+}

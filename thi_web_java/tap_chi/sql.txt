@@ -1,0 +1,11 @@
+CREATE DATABASE QLTapChi;
+USE QLTapChi;
+
+-- Tạo bảng TapChi
+CREATE TABLE TapChi (
+    MaTC VARCHAR(10) PRIMARY KEY,
+    TenTC VARCHAR(100),
+    NhaXB VARCHAR(100),
+    NamXB INT,
+    GiaBia DECIMAL(10, 2)
+);

@@ -1,0 +1,73 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Xóa Bán Hàng</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Xóa Bán Hàng</h1>
+    <form action="XLXoaBH" method="post">
+        <label for="MaKH">Mã khách hàng:</label>
+        <input type="text" id="MaKH" name="MaKH" required><br><br>
+        <button type="submit">Xoá</button>
+    </form>
+
+    <h2>Danh sách Bán Hàng</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Mã khách hàng</th>
+            <th>Mã sản phẩm</th>
+            <th>Giá sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Thành tiền</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%
+            List<Map<String, String>> dsBanHang = (List<Map<String, String>>) request.getAttribute("dsBanHang");
+            String message = (String) request.getAttribute("message");
+            if (message != null) {
+        %>
+            <tr>
+                <td colspan="5" style="color: red;"><%= message %></td>
+            </tr>
+        <%
+            }
+            if (dsBanHang != null) {
+                for (Map<String, String> banHang : dsBanHang) {
+                    double thanhTien = Double.parseDouble(banHang.get("SoLuong")) * Double.parseDouble(banHang.get("GiaSP"));
+                    thanhTien = thanhTien - (thanhTien * 0.05); // Giảm giá 5%
+        %>
+            <tr>
+                <td><%= banHang.get("MaKH") %></td>
+                <td><%= banHang.get("MaSP") %></td>
+                <td><%= banHang.get("GiaSP") %></td>
+                <td><%= banHang.get("SoLuong") %></td>
+                <td><%= String.format("%.2f", thanhTien) %></td>
+            </tr>
+        <%
+                }
+            }
+        %>
+        </tbody>
+    </table>
+</body>
+</html>

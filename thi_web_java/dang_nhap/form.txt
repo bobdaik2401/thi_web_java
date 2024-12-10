@@ -1,0 +1,153 @@
+<%-- 
+    Document   : hoangnanghai_login
+    Created on : Oct 11, 2024, 8:39:19 AM
+    Author     : hoang
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.io.*, jakarta.servlet.*, jakarta.servlet.http.*" %>
+
+<%
+    String username = request.getParameter("username");
+    String password = request.getParameter("password");
+    String correctUsername = "hoangnanghai";
+    String correctPassword = "123";
+
+    String message = "";
+
+    if (request.getParameter("submit") != null) {
+        if (username != null && password != null) {
+            if (username.equals(correctUsername) && password.equals(correctPassword)) {
+                response.sendRedirect("dntc.jsp?username=" + username);
+                return;
+            } else {
+                message = "Bạn đã nhập sai thông tin về UserName hoặc Password";
+            }
+        }
+    }
+%>
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-box {
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 350px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .login-box h1 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .login-box h2 {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .login-box input[type="text"], 
+        .login-box input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+
+        .login-box input[type="text"]:focus, 
+        .login-box input[type="password"]:focus {
+            border-color: #28a745;
+            outline: none;
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+        }
+
+        .login-box input[type="submit"], 
+        .login-box input[type="button"] {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 8px;
+            background-color: #28a745;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .login-box input[type="button"] {
+            background-color: #dc3545;
+        }
+
+        .login-box input[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        .login-box input[type="button"]:hover {
+            background-color: #c82333;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-box">
+    <h1>HOÀNG NĂNG HẢI - DHTI15A2ND - 21203200003</h1>
+    <h2>ĐĂNG NHẬP</h2>
+    <form method="post" action="">
+        <label for="username">Tên đăng nhập:</label><br>
+        <!-- Giữ lại giá trị tên đăng nhập đã nhập -->
+        <input type="text" id="username" name="username" value="<%= username != null ? username : "" %>" required><br>
+        <label for="password">Mật khẩu:</label><br>
+        <!-- Giữ lại giá trị mật khẩu đã nhập -->
+        <input type="password" id="password" name="password" value="<%= password != null ? password : "" %>" required><br>
+        <input type="submit" name="submit" value="ĐĂNG NHẬP">
+        <input type="button" value="THOÁT" onclick="window.location.href='hoangnaghai_login.jsp';">
+    </form>
+    <div class="error-message">
+        <%= message %>
+    </div>
+</div>
+
+</body>
+</html>

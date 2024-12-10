@@ -1,0 +1,19 @@
+-- Tạo cơ sở dữ liệu
+CREATE DATABASE QLCongNhan;
+USE QLCongNhan;
+
+-- Tạo bảng CongNhan
+CREATE TABLE CongNhan (
+    MaCN VARCHAR(10) PRIMARY KEY,   -- Mã công nhân (chuỗi, tối đa 10 ký tự)
+    HoTen VARCHAR(50),              -- Họ và tên công nhân (chuỗi, tối đa 50 ký tự)
+    GioiTinh ENUM('Nam', 'Nữ'),     -- Giới tính (Nam hoặc Nữ)
+    SoGioLamVuot INT                -- Số giờ làm vượt (kiểu số nguyên)
+);
+
+-- Thêm dữ liệu mẫu vào bảng CongNhan
+INSERT INTO CongNhan (MaCN, HoTen, GioiTinh, SoGioLamVuot) VALUES
+('CN001', 'Nguyen Van A', 'Nam', 45),
+('CN002', 'Tran Thi B', 'Nữ', 30),
+('CN003', 'Le Van C', 'Nam', 20),
+('CN004', 'Hoang Thi D', 'Nữ', 10),
+('CN005', 'Pham Van E', 'Nam', 40);

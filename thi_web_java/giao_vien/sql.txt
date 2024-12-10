@@ -1,0 +1,19 @@
+CREATE DATABASE QLGiaoVien;
+
+USE QLGiaoVien;
+
+CREATE TABLE GiaoVien (
+    MaGV VARCHAR(10) PRIMARY KEY,
+    Hoten VARCHAR(100) NOT NULL,
+    NamSinh INT NOT NULL,
+    HeSoLuong FLOAT NOT NULL CHECK (HeSoLuong >= 0)
+);
+
+-- Thêm dữ liệu mẫu
+INSERT INTO GiaoVien (MaGV, Hoten, NamSinh, HeSoLuong)
+VALUES
+('GV001', 'Nguyen Thi A', 1970, 3.5),
+('GV002', 'Tran Minh B', 1980, 4.0),
+('GV003', 'Le Thi C', 1990, 3.0),
+('GV004', 'Pham Minh D', 1965, 3.8),
+('GV005', 'Hoang Thi E', 1985, 4.2);

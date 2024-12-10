@@ -1,0 +1,75 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tìm Kiếm Nhân Viên</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tìm Kiếm Nhân Viên</h1>
+    <form action="XLTimKiemNV" method="post">
+        <label for="maNV">Nhập mã nhân viên:</label>
+        <input type="text" id="maNV" name="maNV" required>
+        <button type="submit">Tìm kiếm</button>
+    </form>
+
+    <%
+        // Lấy thông báo hoặc danh sách nhân viên từ request
+        String message = (String) request.getAttribute("message");
+        java.util.List<java.util.Map<String, String>> dsNhanVien =
+            (java.util.List<java.util.Map<String, String>>) request.getAttribute("dsNhanVien");
+
+        // Hiển thị thông báo nếu không tìm thấy nhân viên
+        if (message != null) {
+    %>
+        <p style="color: red;"><%= message %></p>
+    <%
+        } else if (dsNhanVien != null && !dsNhanVien.isEmpty()) {
+    %>
+        <table>
+            <tr>
+                <th>Mã NV</th>
+                <th>Họ và Tên</th>
+                <th>Hệ Số Lương</th>
+                <th>Phụ Cấp</th>
+                <th>Tiền Lương</th>
+            </tr>
+            <%
+                for (java.util.Map<String, String> nv : dsNhanVien) {
+            %>
+                <tr>
+                    <td><%= nv.get("MaNV") %></td>
+                    <td><%= nv.get("HoTen") %></td>
+                    <td><%= nv.get("HSL") %></td>
+                    <td><%= nv.get("PhuCap") %></td>
+                    <td><%= nv.get("TienLuong") %></td>
+                </tr>
+            <%
+                }
+            %>
+        </table>
+    <%
+        }
+    %>
+</body>
+</html>

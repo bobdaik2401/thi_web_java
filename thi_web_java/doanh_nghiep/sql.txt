@@ -1,0 +1,18 @@
+CREATE DATABASE QLDoanhNghiep;
+
+USE QLDoanhNghiep;
+
+CREATE TABLE DoanhNghiep (
+    MaDN VARCHAR(10) NOT NULL,
+    TenDN VARCHAR(100) NOT NULL,
+    SoVDT DECIMAL(15, 2) NOT NULL, -- Số vốn đầu tư
+    DoanhThu DECIMAL(15, 2) NOT NULL, -- Doanh thu
+    PRIMARY KEY (MaDN)
+);
+
+-- Thêm dữ liệu mẫu
+INSERT INTO DoanhNghiep (MaDN, TenDN, SoVDT, DoanhThu)
+VALUES
+('DN001', 'Tạp chí Công nghệ', 600000000, 1500000000),
+('DN002', 'Tạp chí Xã hội', 450000000, 800000000),
+('DN003', 'Tạp chí Kinh tế', 700000000, 1200

@@ -1,0 +1,69 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*, java.util.*" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Thêm Nhân Viên</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        h1, h2 { color: #333; }
+        form label { font-weight: bold; }
+        form input, form select { margin-bottom: 10px; padding: 5px; width: 100%; max-width: 400px; }
+        button { background-color: #007BFF; color: white; padding: 10px 20px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table, th, td { border: 1px solid black; }
+        th { background-color: #f2f2f2; text-align: center; padding: 8px; }
+        td { padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h1>Thêm Nhân Viên</h1>
+    <form action="XLThemNV" method="post">
+        <label>Mã nhân viên:</label><input type="number" name="maNV" min="1" required><br>
+        <label>Họ tên:</label><input type="text" name="hoTen" required><br>
+        <label>Chức vụ:</label>
+        <select name="chucVu">
+            <option>Giám Đốc</option><option>Phó Giám Đốc</option>
+            <option>Trưởng phòng</option><option>Nhân viên</option>
+        </select><br>
+        <label>Hệ số lương:</label><input type="number" step="0.1" name="heSoLuong" min="0.1" required><br>
+        <button type="submit">Thêm Nhân Viên</button>
+    </form>
+    <hr>
+    <% if (request.getAttribute("thongBaoXanh") != null) { %>
+            <p style="color: green; font-weight: bold;"><%= request.getAttribute("thongBaoXanh") %></p>
+        <% } else if (request.getAttribute("thongBao") != null) { %>
+            <p style="color: red; font-weight: bold;"><%= request.getAttribute("thongBao") %></p>
+        <% } %>
+
+    <h2>Danh sách Nhân Viên</h2>
+    <table>
+        <thead><tr><th>Mã NV</th><th>Họ Tên</th><th>Chức Vụ</th><th>Hệ Số Lương</th><th>Phụ Cấp</th></tr></thead>
+        <tbody>
+        <% 
+            try  {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/qlnhanvien", "root", "");
+                PreparedStatement ps = conn.prepareStatement("SELECT * FROM nhanvien");
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    String chucVu = rs.getString("ChucVu");
+                    int phuCap = chucVu.equals("Giám Đốc") ? 10000000 : 
+                                 chucVu.equals("Phó Giám Đốc") ? 7000000 : 
+                                 chucVu.equals("Trưởng phòng") ? 5000000 : 1000000;
+        %>
+            <tr>
+                <td><%= rs.getInt("MaNV") %></td>
+                <td><%= rs.getString("HoTen") %></td>
+                <td><%= chucVu %></td>
+                <td><%= rs.getFloat("HeSoLuong") %></td>
+                <td><%= phuCap %></td>
+            </tr>
+        <% }} catch (Exception e) { %>
+            <tr><td colspan="5" style="text-align: center;">Lỗi kết nối cơ sở dữ liệu!</td></tr>
+        <% } %>
+        </tbody>
+    </table>
+</body>
+</html>

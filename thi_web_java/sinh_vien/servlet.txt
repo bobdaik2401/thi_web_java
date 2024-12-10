@@ -1,0 +1,66 @@
+package controllers;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet("/XLTimKiemSV")
+public class XLTimKiemSV extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String maSV = request.getParameter("maSV");
+        List<Map<String, String>> dsSinhVien = new ArrayList<>();
+        String message = null;
+
+        String jdbcURL = "jdbc:mysql://localhost:3306/QLSinhVien";
+        String dbUser = "root";
+        String dbPassword = "password";
+
+        try (Connection connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword)) {
+            String sql = "SELECT * FROM SinhVien WHERE MaSV LIKE ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, "%" + maSV + "%");
+
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                Map<String, String> sinhVien = new HashMap<>();
+                sinhVien.put("MaSV", resultSet.getString("MaSV"));
+                sinhVien.put("HoTen", resultSet.getString("HoTen"));
+                sinhVien.put("NgaySinh", resultSet.getString("NgaySinh"));
+                sinhVien.put("DiemTB", String.valueOf(resultSet.getFloat("DiemTB")));
+
+                // Xác định học bổng
+                float diemTB = resultSet.getFloat("DiemTB");
+                String hocBong;
+                if (diemTB >= 9) {
+                    hocBong = "5.000.000";
+                } else if (diemTB >= 8.5) {
+                    hocBong = "3.000.000";
+                } else {
+                    hocBong = "Không có";
+                }
+                sinhVien.put("HocBong", hocBong);
+
+                dsSinhVien.add(sinhVien);
+            }
+
+            if (dsSinhVien.isEmpty()) {
+                message = "Không tìm thấy sinh viên có mã: " + maSV;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            message = "Lỗi kết nối cơ sở dữ liệu!";
+        }
+
+        // Truyền dữ liệu về lại trang JSP
+        request.setAttribute("dsSinhVien", dsSinhVien);
+        request.setAttribute("message", message);
+        request.getRequestDispatcher("TimKiemSV.jsp").forward(request, response);
+    }
+}

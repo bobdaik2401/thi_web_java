@@ -1,0 +1,80 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Xóa Hộ Dân</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Xóa Hộ Dân</h1>
+    <form action="XLXoaHD" method="post">
+        <label for="MaHD">Mã hộ dân:</label>
+        <input type="text" id="MaHD" name="MaHD" required><br><br>
+        <button type="submit">Xoá</button>
+    </form>
+
+    <h2>Danh sách Hộ Dân</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Mã hộ dân</th>
+            <th>Tên chủ hộ</th>
+            <th>Số thành viên</th>
+            <th>Mức thu nhập</th>
+            <th>Tiền trợ cấp</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%
+            List<Map<String, String>> dsHoDan = (List<Map<String, String>>) request.getAttribute("dsHoDan");
+            String message = (String) request.getAttribute("message");
+            if (message != null) {
+        %>
+            <tr>
+                <td colspan="5" style="color: red;"><%= message %></td>
+            </tr>
+        <%
+            }
+            if (dsHoDan != null) {
+                for (Map<String, String> hoDan : dsHoDan) {
+                    double tienTroCap = 0;
+                    double thuNhap = Double.parseDouble(hoDan.get("ThuNhap"));
+                    if (thuNhap < 2000000) {
+                        tienTroCap = Double.parseDouble(hoDan.get("SoTV")) * 200000;
+                    } else if (thuNhap < 3000000) {
+                        tienTroCap = Double.parseDouble(hoDan.get("SoTV")) * 100000;
+                    } else if (thuNhap < 5000000) {
+                        tienTroCap = Double.parseDouble(hoDan.get("SoTV")) * 50000;
+                    }
+        %>
+            <tr>
+                <td><%= hoDan.get("MaHD") %></td>
+                <td><%= hoDan.get("TenCH") %></td>
+                <td><%= hoDan.get("SoTV") %></td>
+                <td><%= hoDan.get("ThuNhap") %></td>
+                <td><%= String.format("%.0f", tienTroCap) %> đ</td>
+            </tr>
+        <%
+                }
+            }
+        %>
+        </tbody>
+    </table>
+</body>
+</html>
